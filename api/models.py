@@ -8,3 +8,20 @@ class ExtendUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     acctype = models.CharField(max_length=12)
     phone = models.CharField(max_length=15)
+
+class Food(models.Model):
+	foodName = models.CharField(max_length=256)
+	foodImgUrl = models.TextField()
+	foodDescription = models.TextField()
+	foodRestaurantId = models.IntegerField()
+	def __str__(self):
+		return self.foodName
+		
+class Order(models.Model):
+	foodId = models.IntegerField()
+	customerId = models.IntegerField()
+	time = models.IntegerField()
+	place = models.CharField(max_length=256)
+	accept = models.BooleanField()
+	def __str__(self):
+		return self.foodId
