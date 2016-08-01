@@ -56,9 +56,11 @@ def login_api(request):
 			return JsonResponse({'errCode': 0, 'msg': 'Login success'})
 		else:
 			return JsonResponse({'errCode': -2, 'msg': 'Invalid username or password'})
+	else:
+		return JsonResponse({'errCode': -6, 'msg': 'Invalid method, POST only'})
 def userinfo(request):
 	if (request.user.is_authenticated()):
-		return JsonResponse({'errCode': 0, 'userinfo': {'username': request.user.username, 'acctype': request.user.extenduser.acctype}})
+		return JsonResponse({'errCode': 0, 'userinfo': {'username': request.user.username, 'acctype': request.user.extenduser.acctype, 'phone': request.user.extenduser.phone}})
 	else:
 		return JsonResponse({'errCode': -2, 'msg': 'Not login yet'})
 def logout_api(request):
@@ -67,3 +69,26 @@ def logout_api(request):
 		return JsonResponse({'errCode': 0, 'msg': 'Logout success'})
 	else:
 		return JsonResponse({'errCode': -2, 'msg': 'Not login yet'})
+def changePassword(request):
+	if (request.method == 'POST'):
+		if (request.user.is_authenticated()):
+			if ('password' in request.POST):
+				password = request.POST['password']
+			else:
+				return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'password\''})
+			if ('newpassword' in request.POST):
+				newpassword = request.POST['newpassword']
+			else:
+				return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'newpassword\''})
+			user = authenticate(username=request.user.username, password=password)
+			if user is not None:
+				user.set_password(newpassword)
+				user.save()
+				login(request, user)
+				return JsonResponse({'errCode': 0, 'msg': 'Password Changed'})
+			else:
+				return JsonResponse({'errCode': -6, 'msg': 'Authenticate Failed, invalid password'})
+		else:
+			return JsonResponse({'errCode': -2, 'msg': 'Not login yet'})
+	else:
+		return JsonResponse({'errCode': -6, 'msg': 'Invalid method, POST only'})
