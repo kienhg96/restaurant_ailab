@@ -8,4 +8,6 @@ urlpatterns = [
     url(r'^userinfo$', views.userinfo, name='userinfo'),
     url(r'^logout$', views.logout_api, name='logout'),
     url(r'^changepassword$', views.changePassword, name='changepassword'),
+    url(r'^postfood$', views.postFood, name='postfood'),
+    #url(r'^test$', views.test, name='test'),
 ]

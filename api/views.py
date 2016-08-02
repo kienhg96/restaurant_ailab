@@ -19,12 +19,12 @@ def register(request):
         	password = request.POST['password']
         else:
         	return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'password\''})
-        if ('acctype' in request.POST):
-        	acctype = request.POST['acctype']
-        	if (acctype != 'customer' and acctype !='restaurant'):
-        		return JsonResponse({'errCode': -5, 'msg': 'Invalid acctype, only either \'customer\' or \'restaurant\''})
+        if ('accType' in request.POST):
+        	accType = request.POST['accType']
+        	if (accType != 'customer' and accType != 'restaurant'):
+        		return JsonResponse({'errCode': -5, 'msg': 'Invalid accType, only either \'customer\' or \'restaurant\''})
         else:
-        	return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'acctype\''})
+        	return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'accType\''})
         if ('phone' in request.POST):
         	phone = request.POST['phone']
         else:
@@ -35,7 +35,7 @@ def register(request):
     	else:
     		user = User.objects.create_user(username, None, password)
     		user.save()
-    		extendUser = ExtendUser(user=user, acctype=acctype, phone=phone)
+    		extendUser = ExtendUser(user=user, accType=accType, phone=phone)
     		extendUser.save()
     		return JsonResponse({'errCode': 0, 'msg': 'Register success', 'userinfo': {'username': username, 'phone': phone}})
     else:
@@ -60,15 +60,15 @@ def login_api(request):
 		return JsonResponse({'errCode': -6, 'msg': 'Invalid method, POST only'})
 def userinfo(request):
 	if (request.user.is_authenticated()):
-		return JsonResponse({'errCode': 0, 'userinfo': {'username': request.user.username, 'acctype': request.user.extenduser.acctype, 'phone': request.user.extenduser.phone}})
+		return JsonResponse({'errCode': 0, 'userinfo': {'username': request.user.username, 'accType': request.user.extenduser.accType, 'phone': request.user.extenduser.phone}})
 	else:
-		return JsonResponse({'errCode': -2, 'msg': 'Not login yet'})
+		return JsonResponse({'errCode': -2, 'msg': 'You are not login'})
 def logout_api(request):
 	if (request.user.is_authenticated()):
 		logout(request)
 		return JsonResponse({'errCode': 0, 'msg': 'Logout success'})
 	else:
-		return JsonResponse({'errCode': -2, 'msg': 'Not login yet'})
+		return JsonResponse({'errCode': -2, 'msg': 'You are not login'})
 def changePassword(request):
 	if (request.method == 'POST'):
 		if (request.user.is_authenticated()):
@@ -76,19 +76,46 @@ def changePassword(request):
 				password = request.POST['password']
 			else:
 				return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'password\''})
-			if ('newpassword' in request.POST):
-				newpassword = request.POST['newpassword']
+			if ('newPassword' in request.POST):
+				newPassword = request.POST['newPassword']
 			else:
-				return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'newpassword\''})
+				return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'newPassword\''})
 			user = authenticate(username=request.user.username, password=password)
 			if user is not None:
-				user.set_password(newpassword)
+				user.set_password(newPassword)
 				user.save()
 				login(request, user)
 				return JsonResponse({'errCode': 0, 'msg': 'Password Changed'})
 			else:
 				return JsonResponse({'errCode': -6, 'msg': 'Authenticate Failed, invalid password'})
 		else:
-			return JsonResponse({'errCode': -2, 'msg': 'Not login yet'})
+			return JsonResponse({'errCode': -2, 'msg': 'You are not login'})
+	else:
+		return JsonResponse({'errCode': -6, 'msg': 'Invalid method, POST only'})
+
+def postFood(request):
+	if request.method == 'POST':
+		if request.user.is_authenticated():
+			if request.user.extenduser.accType == 'restaurant':
+				if 'foodName' in request.POST:
+					foodName = request.POST['foodName']
+				else:
+					return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'foodName\''})
+				if 'foodImgUrl' in request.POST:
+					foodImgUrl = request.POST['foodImgUrl']
+				else:
+					foodImgUrl = ''
+				if 'foodDescription' in request.POST:
+					foodDescription = request.POST['foodDescription']
+				else:
+					foodDescription = ''
+				foodRestaurantId = request.user.id
+				food = Food(foodName=foodName, foodImgUrl=foodImgUrl, foodDescription=foodDescription, foodRestaurantId=foodRestaurantId)
+				food.save()
+				return JsonResponse({'errCode': 0, 'foodInfo':{'foodName': foodName, 'foodImgUrl': foodImgUrl, 'foodDescription':foodDescription}})
+			else:
+				return JsonResponse({'errCode': -3, 'msg': 'This account is not restaurant account'})
+		else:
+			return JsonResponse({'errCode': -2, 'msg': 'You are not login'})
 	else:
 		return JsonResponse({'errCode': -6, 'msg': 'Invalid method, POST only'})
