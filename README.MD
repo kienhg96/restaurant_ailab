@@ -2,6 +2,7 @@
 
 **After clone this project, you must run bellow command:**
 ```bash
+python manage.py makemigrations  
 python manage.py migrate
 ```
 **Create superuser**
