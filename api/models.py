@@ -8,6 +8,7 @@ class ExtendUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     accType = models.CharField(max_length=12)
     phone = models.CharField(max_length=15)
+    name = models.CharField(max_length=256)
     def __str__(self):
     	return self.user.username
 
