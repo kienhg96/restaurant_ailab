@@ -19,6 +19,10 @@ def register(request):
         	password = request.POST['password']
         else:
         	return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'password\''})
+        if ('name' in request.POST):
+        	name = request.POST['name']
+        else:
+        	return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'name\''})
         if ('accType' in request.POST):
         	accType = request.POST['accType']
         	if (accType != 'customer' and accType != 'restaurant'):
@@ -29,15 +33,15 @@ def register(request):
         	phone = request.POST['phone']
         else:
         	return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'phone\''})
-        
+
         if (len(User.objects.filter(username=username)) != 0):
         	return JsonResponse({'errCode': -1, 'msg': 'Username \'' + username + '\' already exists'})
     	else:
     		user = User.objects.create_user(username, None, password)
     		user.save()
-    		extendUser = ExtendUser(user=user, accType=accType, phone=phone)
+    		extendUser = ExtendUser(user=user, accType=accType, phone=phone, name=name)
     		extendUser.save()
-    		return JsonResponse({'errCode': 0, 'msg': 'Register success', 'userinfo': {'username': username, 'phone': phone}})
+    		return JsonResponse({'errCode': 0, 'msg': 'Register success', 'userinfo': {'username': username, 'name': name, 'phone': phone}})
     else:
     	return JsonResponse({'errCode': -6, 'msg': 'Invalid method, POST only'})
 def login_api(request):
@@ -58,11 +62,18 @@ def login_api(request):
 			return JsonResponse({'errCode': -2, 'msg': 'Invalid username or password'})
 	else:
 		return JsonResponse({'errCode': -6, 'msg': 'Invalid method, POST only'})
-def userinfo(request):
-	if (request.user.is_authenticated()):
-		return JsonResponse({'errCode': 0, 'userinfo': {'username': request.user.username, 'accType': request.user.extenduser.accType, 'phone': request.user.extenduser.phone}})
+def userinfo(request, string):
+	if (string == ""):
+		if (request.user.is_authenticated()):
+			return JsonResponse({'errCode': 0, 'userinfo': {'username': request.user.username, 'accType': request.user.extenduser.accType, 'phone': request.user.extenduser.phone, 'name': request.user.extenduser.name}})
+		else:
+			return JsonResponse({'errCode': -2, 'msg': 'You are not login'})
 	else:
-		return JsonResponse({'errCode': -2, 'msg': 'You are not login'})
+		user = User.objects.filter(username=string)
+		if len(user) == 0:
+			return JsonResponse({'errCode': -7, 'msg':'Username not found'})
+		else:
+			return JsonResponse({'errCode': 0, 'userinfo': {'username': string, 'name': user[0].extenduser.name, 'accType': user[0].extenduser.accType}})
 def logout_api(request):
 	if (request.user.is_authenticated()):
 		logout(request)
@@ -119,3 +130,24 @@ def postFood(request):
 			return JsonResponse({'errCode': -2, 'msg': 'You are not login'})
 	else:
 		return JsonResponse({'errCode': -6, 'msg': 'Invalid method, POST only'})
+
+def listFood(request):
+	if request.method == 'GET':
+		if 'limit' in request.GET:
+			limit = request.GET['limit']
+		else:
+			limit = 20
+		if 'offset' in request.GET:
+			offset = request.GET['offset']
+		else:
+			offset = 0
+		food = Food.objects.all()[offset: offset + limit]
+		arr = []
+		for elem in food:
+			restaurant = User.objects.filter(username=elem.foodRestaurant)
+			arr.append({'foodId': elem.id, 'foodName': elem.foodName, 'Restaurant': {'username': elem.foodRestaurant, 'name': restaurant[0].extenduser.name}, 'foodDescription': elem.foodDescription, 'foodImgUrl': elem.foodImgUrl})
+		return JsonResponse({'listFood': arr})
+	else:
+		return JsonResponse({'errCode': -6, 'msg': 'Invalid method, GET only'})
+def test(request, string):
+	return JsonResponse({'str': string})
