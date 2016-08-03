@@ -109,8 +109,8 @@ def postFood(request):
 					foodDescription = request.POST['foodDescription']
 				else:
 					foodDescription = ''
-				foodRestaurantId = request.user.id
-				food = Food(foodName=foodName, foodImgUrl=foodImgUrl, foodDescription=foodDescription, foodRestaurantId=foodRestaurantId)
+				foodRestaurant = request.user.username
+				food = Food(foodName=foodName, foodImgUrl=foodImgUrl, foodDescription=foodDescription, foodRestaurant=foodRestaurant)
 				food.save()
 				return JsonResponse({'errCode': 0, 'foodInfo':{'foodName': foodName, 'foodImgUrl': foodImgUrl, 'foodDescription':foodDescription}})
 			else:

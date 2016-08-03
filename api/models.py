@@ -15,7 +15,7 @@ class Food(models.Model):
 	foodName = models.CharField(max_length=256)
 	foodImgUrl = models.TextField()
 	foodDescription = models.TextField()
-	foodRestaurantId = models.IntegerField()
+	foodRestaurant = models.CharField(max_length=256)
 	def __str__(self):
 		return self.foodName
 		
