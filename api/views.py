@@ -46,6 +46,7 @@ def register(request):
 			return JsonResponse({'errCode': 0, 'msg': 'Register success', 'userinfo': {'username': username, 'name': name, 'phone': phone}})
 	else:
 		return JsonResponse({'errCode': -6, 'msg': 'Invalid method, POST only'})
+
 def login_api(request):
 	if (request.method == 'POST'):
 		if ('username' in request.POST):
@@ -64,6 +65,7 @@ def login_api(request):
 			return JsonResponse({'errCode': -2, 'msg': 'Invalid username or password'})
 	else:
 		return JsonResponse({'errCode': -6, 'msg': 'Invalid method, POST only'})
+
 def userinfo(request, string):
 	if (string == ""):
 		if (request.user.is_authenticated()):
@@ -76,12 +78,14 @@ def userinfo(request, string):
 			return JsonResponse({'errCode': -7, 'msg':'Username not found'})
 		else:
 			return JsonResponse({'errCode': 0, 'userinfo': {'username': string, 'name': user[0].extenduser.name, 'accType': user[0].extenduser.accType, 'phone': user[0].extenduser.phone}})
+
 def logout_api(request):
 	if (request.user.is_authenticated()):
 		logout(request)
 		return JsonResponse({'errCode': 0, 'msg': 'Logout success'})
 	else:
 		return JsonResponse({'errCode': -2, 'msg': 'You are not login'})
+
 def changePassword(request):
 	if (request.method == 'POST'):
 		if (request.user.is_authenticated()):
@@ -161,6 +165,7 @@ def listFood(request, username):
 			return JsonResponse({'listFood': arr})
 	else:
 		return JsonResponse({'errCode': -6, 'msg': 'Invalid method, GET only'})
+
 def orderFood(request):
 	if request.method == 'POST':
 		if request.user.is_authenticated():
@@ -195,5 +200,6 @@ def orderFood(request):
 			return JsonResponse({'errCode': -2, 'msg': 'You are not login'})
 	else:
 		return JsonResponse({'errCode': -6, 'msg': 'Invalid method, POST only'})
+
 def test(request, string):
 	return JsonResponse({'str': string})
