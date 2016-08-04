@@ -73,7 +73,7 @@ def userinfo(request, string):
 		if len(user) == 0:
 			return JsonResponse({'errCode': -7, 'msg':'Username not found'})
 		else:
-			return JsonResponse({'errCode': 0, 'userinfo': {'username': string, 'name': user[0].extenduser.name, 'accType': user[0].extenduser.accType}})
+			return JsonResponse({'errCode': 0, 'userinfo': {'username': string, 'name': user[0].extenduser.name, 'accType': user[0].extenduser.accType, 'phone': user[0].extenduser.phone}})
 def logout_api(request):
 	if (request.user.is_authenticated()):
 		logout(request)
@@ -131,7 +131,7 @@ def postFood(request):
 	else:
 		return JsonResponse({'errCode': -6, 'msg': 'Invalid method, POST only'})
 
-def listFood(request):
+def listFood(request, username):
 	if request.method == 'GET':
 		if 'limit' in request.GET:
 			limit = request.GET['limit']
@@ -141,12 +141,22 @@ def listFood(request):
 			offset = request.GET['offset']
 		else:
 			offset = 0
-		food = Food.objects.all()[offset: offset + limit]
 		arr = []
-		for elem in food:
-			restaurant = User.objects.filter(username=elem.foodRestaurant)
-			arr.append({'foodId': elem.id, 'foodName': elem.foodName, 'Restaurant': {'username': elem.foodRestaurant, 'name': restaurant[0].extenduser.name}, 'foodDescription': elem.foodDescription, 'foodImgUrl': elem.foodImgUrl})
-		return JsonResponse({'listFood': arr})
+		if username == "":
+			food = Food.objects.all()[offset: offset + limit]
+			for elem in food:
+				restaurant = User.objects.filter(username=elem.foodRestaurant)
+				arr.append({'foodId': elem.id, 'foodName': elem.foodName, 'Restaurant': {'username': elem.foodRestaurant, 'name': restaurant[0].extenduser.name, 'phone': restaurant[0].extenduser.phone}, 'foodDescription': elem.foodDescription, 'foodImgUrl': elem.foodImgUrl})
+			return JsonResponse({'listFood': arr})
+		else:
+			food = Food.objects.filter(foodRestaurant=username)[offset: offset + limit]
+			if len(food) != 0:
+				user = User.objects.filter(username=username)[0];
+			else:
+				name = ''
+			for elem in food:
+				arr.append({'foodId': elem.id, 'foodName': elem.foodName, 'Restaurant': {'username': username, 'name': user.extenduser.name, 'phone': user.extenduser.phone}, 'foodDescription': elem.foodDescription, 'foodImgUrl': elem.foodImgUrl})
+			return JsonResponse({'listFood': arr})
 	else:
 		return JsonResponse({'errCode': -6, 'msg': 'Invalid method, GET only'})
 def test(request, string):
