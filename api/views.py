@@ -8,44 +8,44 @@ import time
 # Create your views here.
 
 def index(request):
-    return JsonResponse({'msg': 'Hello, world'})
-    
-def register(request):
-    if (request.method == 'POST'):
-    	#checking argument
-    	if ('username' in request.POST):
-        	username = request.POST['username']
-        else:
-        	return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'username\''})
-        if ('password' in request.POST):
-        	password = request.POST['password']
-        else:
-        	return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'password\''})
-        if ('name' in request.POST):
-        	name = request.POST['name']
-        else:
-        	return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'name\''})
-        if ('accType' in request.POST):
-        	accType = request.POST['accType']
-        	if (accType != 'customer' and accType != 'restaurant'):
-        		return JsonResponse({'errCode': -5, 'msg': 'Invalid accType, only either \'customer\' or \'restaurant\''})
-        else:
-        	return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'accType\''})
-        if ('phone' in request.POST):
-        	phone = request.POST['phone']
-        else:
-        	return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'phone\''})
+	return JsonResponse({'msg': 'Hello, world'})
 
-        if (len(User.objects.filter(username=username)) != 0):
-        	return JsonResponse({'errCode': -1, 'msg': 'Username \'' + username + '\' already exists'})
-    	else:
-    		user = User.objects.create_user(username, None, password)
-    		user.save()
-    		extendUser = ExtendUser(user=user, accType=accType, phone=phone, name=name)
-    		extendUser.save()
-    		return JsonResponse({'errCode': 0, 'msg': 'Register success', 'userinfo': {'username': username, 'name': name, 'phone': phone}})
-    else:
-    	return JsonResponse({'errCode': -6, 'msg': 'Invalid method, POST only'})
+def register(request):
+	if (request.method == 'POST'):
+		#checking argument
+		if ('username' in request.POST):
+			username = request.POST['username']
+		else:
+			return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'username\''})
+		if ('password' in request.POST):
+			password = request.POST['password']
+		else:
+			return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'password\''})
+		if ('name' in request.POST):
+			name = request.POST['name']
+		else:
+			return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'name\''})
+		if ('accType' in request.POST):
+			accType = request.POST['accType']
+			if (accType != 'customer' and accType != 'restaurant'):
+				return JsonResponse({'errCode': -5, 'msg': 'Invalid accType, only either \'customer\' or \'restaurant\''})
+		else:
+			return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'accType\''})
+		if ('phone' in request.POST):
+			phone = request.POST['phone']
+		else:
+			return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'phone\''})
+
+		if (len(User.objects.filter(username=username)) != 0):
+			return JsonResponse({'errCode': -1, 'msg': 'Username \'' + username + '\' already exists'})
+		else:
+			user = User.objects.create_user(username, None, password)
+			user.save()
+			extendUser = ExtendUser(user=user, accType=accType, phone=phone, name=name)
+			extendUser.save()
+			return JsonResponse({'errCode': 0, 'msg': 'Register success', 'userinfo': {'username': username, 'name': name, 'phone': phone}})
+	else:
+		return JsonResponse({'errCode': -6, 'msg': 'Invalid method, POST only'})
 def login_api(request):
 	if (request.method == 'POST'):
 		if ('username' in request.POST):
