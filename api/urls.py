@@ -10,5 +10,6 @@ urlpatterns = [
     url(r'^changepassword$', views.changePassword, name='changepassword'),
     url(r'^postfood$', views.postFood, name='postfood'),
     url(r'^listfood/(?P<username>[0-9, A-z,_]+|)$', views.listFood, name='listfood'),
+    url(r'^orderfood$', views.orderFood, name='orderfood'),
     url(r'^test/(?P<string>[0-9, A-z,_]+|)$', views.test, name='test'),
 ]

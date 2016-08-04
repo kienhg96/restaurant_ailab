@@ -3,6 +3,8 @@ from django.http import JsonResponse
 from django.contrib.auth.models import User
 from api.models import *
 from django.contrib.auth import authenticate, login, logout
+import re # regular expression
+import time
 # Create your views here.
 
 def index(request):
@@ -159,5 +161,38 @@ def listFood(request, username):
 			return JsonResponse({'listFood': arr})
 	else:
 		return JsonResponse({'errCode': -6, 'msg': 'Invalid method, GET only'})
+def orderFood(request):
+	if request.method == 'POST':
+		if request.user.is_authenticated():
+			if ('foodId' in request.POST):
+				foodId = request.POST['foodId']
+				food = Food.objects.filter(id=foodId)
+				if len(food) == 0:
+					return JsonResponse({'errCode': -7, 'msg': 'Food not found'})
+			else:
+				return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'foodId\''})
+			if ('time' in request.POST):
+				order_time = request.POST['time']
+				pattern = re.compile('[0-9]+');
+				match = pattern.match(order_time)
+				if match is None:
+					return Json({'errCode': -5, 'msg': 'Invalid time'})
+				else:
+					order_time = int(match.group());
+					if (order_time < (int(time.time()) - 60)):
+						return JsonResponse({'errCode': -5, 'msg': 'Invalid time, time in the past'})
+			else:
+				return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'time\''})
+			if ('place' in request.POST):
+				place = request.POST['place']
+			else:
+				return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'place\''})
+			order = Order(foodId=foodId, customerId=request.user.id, time=order_time, place=place, accept=False)
+			order.save()
+			return JsonResponse({'errCode': 0, 'foodId': foodId, 'time': order_time, 'place': place})
+		else:
+			return JsonResponse({'errCode': -2, 'msg': 'You are not login'})
+	else:
+		return JsonResponse({'errCode': -6, 'msg': 'Invalid method, POST only'})
 def test(request, string):
 	return JsonResponse({'str': string})
