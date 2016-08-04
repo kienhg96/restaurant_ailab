@@ -189,7 +189,8 @@ def orderFood(request):
 				return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'place\''})
 			order = Order(foodId=foodId, customerId=request.user.id, time=order_time, place=place, accept=False)
 			order.save()
-			return JsonResponse({'errCode': 0, 'foodId': foodId, 'time': order_time, 'place': place})
+
+			return JsonResponse({'errCode': 0, 'food': {'foodId': foodId, 'foodName': food[0].foodName, 'restaurant': food[0].foodRestaurant, 'foodImgUrl': food[0].foodImgUrl, 'foodDescription': food[0].foodDescription}, 'time': order_time, 'place': place})
 		else:
 			return JsonResponse({'errCode': -2, 'msg': 'You are not login'})
 	else:
