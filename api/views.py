@@ -201,5 +201,30 @@ def orderFood(request):
 	else:
 		return JsonResponse({'errCode': -6, 'msg': 'Invalid method, POST only'})
 
+def accept(request):
+	if request.method == 'POST':
+		if request.user.is_authenticated():
+			if request.user.extenduser.accType == 'restaurant':
+				if 'orderId' in request.POST:
+					orderId = request.POST['orderId']
+					order = Order.objects.filter(id=orderId)
+					if len(order) == 0:
+						return JsonResponse({'errCode': -7, 'msg': 'Not found order with id = %s' % orderId})
+					foodId = order[0].foodId
+					food = Food.objects.filter(id=foodId)
+					if request.user.username != food[0].foodRestaurant:
+						return JsonResponse({'errCode': -4, 'msg': 'You are not own of food'})
+					order[0].accept = True
+					order[0].save()
+					return JsonResponse({'errCode': 0, 'msg': 'Accept success', 'order': {'foodId': order[0].foodId, 'customerId': order[0].customerId, 'time': order[0].time, 'place': order[0].place, 'accept': order[0].accept}})
+				else:
+					return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'orderId\''})
+			else:
+				return JsonResponse({'errCode': -3, 'msg': 'Your account type must be \'restaurant\''})
+		else:
+			return JsonResponse({'errCode': -2, 'msg': 'You are not login'})
+	else:
+		return JsonResponse({'errCode': -6, 'msg': 'Invalid method, POST only'})
+
 def test(request, string):
 	return JsonResponse({'str': string})
