@@ -213,6 +213,8 @@ def accept(request):
 						return JsonResponse({'errCode': -7, 'msg': 'Not found order with id = %s' % orderId})
 					foodId = order[0].foodId
 					food = Food.objects.filter(id=foodId)
+					if len(food) == 0:
+						return JsonResponse({'errCode': -8, 'msg': 'Food has been deleted'})
 					if request.user.username != food[0].foodRestaurant:
 						return JsonResponse({'errCode': -4, 'msg': 'You are not own of food'})
 					order[0].accept = True
@@ -252,8 +254,12 @@ def orderList(request):
 					order = Order.objects.filter(customer=request.user.username, accept=False)
 			arr = []
 			for elem in order:
-				food = Food.objects.filter(id=elem.foodId)[0]
-				arr.append({'food': {'foodName': food.foodName, 'foodImgUrl': food.foodImgUrl, 'foodDescription': food.foodDescription}, 'customer': elem.customer, 'restaurant': elem.restaurant, 'time': elem.time, 'place': elem.place, 'accept': elem.accept})
+				food = Food.objects.filter(id=elem.foodId)
+				if len(food) == 0:
+					foodInfo = "Deleted"
+				else:
+					foodInfo = {'foodName': food[0].foodName, 'foodImgUrl': food[0].foodImgUrl, 'foodDescription': food[0].foodDescription}
+				arr.append({'food': foodInfo, 'customer': elem.customer, 'restaurant': elem.restaurant, 'time': elem.time, 'place': elem.place, 'accept': elem.accept})
 			return JsonResponse({'errCode': 0, 'list': arr})
 		else:
 			return JsonResponse({'errCode': -2, 'msg': 'You are not login'})
