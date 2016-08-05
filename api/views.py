@@ -227,19 +227,38 @@ def accept(request):
 	else:
 		return JsonResponse({'errCode': -6, 'msg': 'Invalid method, POST only'})
 
-"""
 def orderList(request):
 	if request.method == 'GET':
-		if 'accept' in request.GET['accept']:
+		if 'accept' in request.GET:
 			accept = int(request.GET['accept'])
 			if accept < 0 or accept > 2:
 				return JsonResponse({'errCode': -5, 'msg': 'Invalid \'accept\' argument'})
 		else:
-			accept = 0
-		if request.user.extenduser == 'restaurant':
-			print ''
+			accept = 2
+		if request.user.is_authenticated():
+			if request.user.extenduser.accType == 'restaurant':
+				if accept == 2:
+					order = Order.objects.filter(restaurant=request.user.username)
+				elif accept == 1:
+					order = Order.objects.filter(restaurant=request.user.username, accept=True)
+				else:
+					order = Order.objects.filter(restaurant=request.user.username, accept=False)
+			else:
+				if accept == 2:
+					order = Order.objects.filter(customer=request.user.username)
+				elif accept == 1:
+					order = Order.objects.filter(customer=request.user.username, accept=True)
+				else: 
+					order = Order.objects.filter(customer=request.user.username, accept=False)
+			arr = []
+			for elem in order:
+				food = Food.objects.filter(id=elem.foodId)[0]
+				arr.append({'food': {'foodName': food.foodName, 'foodImgUrl': food.foodImgUrl, 'foodDescription': food.foodDescription}, 'customer': elem.customer, 'restaurant': elem.restaurant, 'time': elem.time, 'place': elem.place, 'accept': elem.accept})
+			return JsonResponse({'errCode': 0, 'list': arr})
+		else:
+			return JsonResponse({'errCode': -2, 'msg': 'You are not login'})
 	else:
 		return JsonResponse({'errCode': -6, 'msg': 'Invalid method, GET only'})
-"""
+
 def test(request, string):
 	return JsonResponse({'str': string})
