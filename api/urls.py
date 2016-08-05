@@ -11,7 +11,9 @@ urlpatterns = [
 	url(r'^postfood$', views.postFood, name='postfood'),
 	url(r'^listfood/(?P<username>[0-9, A-z,_]+|)$', views.listFood, name='listfood'),
 	url(r'^orderfood$', views.orderFood, name='orderfood'),
-	url(r'^accept$', views.accept, name='accept'),
+	url(r'^orderaction$', views.orderAction, name='orderaction'),
 	url(r'^orderlist$', views.orderList, name='orderlist'),
+	url(r'^deletefood$', views.deleteFood, name='deletefood'),
+	url(r'^cancelorder$', views.cancelOrder, name='cancelOrder'),
 	url(r'^test/(?P<string>[0-9, A-z,_]+|)$', views.test, name='test'),
 ]

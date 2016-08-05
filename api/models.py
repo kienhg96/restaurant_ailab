@@ -26,6 +26,6 @@ class Order(models.Model):
 	restaurant = models.CharField(max_length=256)
 	time = models.IntegerField()
 	place = models.CharField(max_length=256)
-	accept = models.BooleanField()
+	action = models.CharField(max_length=20)
 	def __str__(self):
 		return self.foodId
