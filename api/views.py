@@ -192,7 +192,8 @@ def orderFood(request):
 				place = request.POST['place']
 			else:
 				return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'place\''})
-			order = Order(foodId=foodId, customerId=request.user.id, time=order_time, place=place, accept=False)
+
+			order = Order(foodId=foodId, customer=request.user.username, restaurant=food[0].foodRestaurant, time=order_time, place=place, accept=False)
 			order.save()
 
 			return JsonResponse({'errCode': 0, 'food': {'foodId': foodId, 'foodName': food[0].foodName, 'restaurant': food[0].foodRestaurant, 'foodImgUrl': food[0].foodImgUrl, 'foodDescription': food[0].foodDescription}, 'time': order_time, 'place': place})
@@ -216,7 +217,7 @@ def accept(request):
 						return JsonResponse({'errCode': -4, 'msg': 'You are not own of food'})
 					order[0].accept = True
 					order[0].save()
-					return JsonResponse({'errCode': 0, 'msg': 'Accept success', 'order': {'foodId': order[0].foodId, 'customerId': order[0].customerId, 'time': order[0].time, 'place': order[0].place, 'accept': order[0].accept}})
+					return JsonResponse({'errCode': 0, 'msg': 'Accept success', 'order': {'foodId': order[0].foodId, 'customerId': order[0].customer, 'time': order[0].time, 'place': order[0].place, 'accept': order[0].accept}})
 				else:
 					return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'orderId\''})
 			else:
@@ -226,5 +227,19 @@ def accept(request):
 	else:
 		return JsonResponse({'errCode': -6, 'msg': 'Invalid method, POST only'})
 
+"""
+def orderList(request):
+	if request.method == 'GET':
+		if 'accept' in request.GET['accept']:
+			accept = int(request.GET['accept'])
+			if accept < 0 or accept > 2:
+				return JsonResponse({'errCode': -5, 'msg': 'Invalid \'accept\' argument'})
+		else:
+			accept = 0
+		if request.user.extenduser == 'restaurant':
+			print ''
+	else:
+		return JsonResponse({'errCode': -6, 'msg': 'Invalid method, GET only'})
+"""
 def test(request, string):
 	return JsonResponse({'str': string})

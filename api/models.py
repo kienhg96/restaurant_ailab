@@ -22,7 +22,8 @@ class Food(models.Model):
 		
 class Order(models.Model):
 	foodId = models.IntegerField()
-	customerId = models.IntegerField()
+	customer = models.CharField(max_length=256)
+	restaurant = models.CharField(max_length=256)
 	time = models.IntegerField()
 	place = models.CharField(max_length=256)
 	accept = models.BooleanField()
