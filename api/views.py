@@ -103,7 +103,7 @@ def changePassword(request):
 		login(request, user)
 		return JsonResponse({'errCode': 0, 'msg': 'Password Changed'})
 	else:
-		return JsonResponse({'errCode': -6, 'msg': 'Authenticate Failed, invalid password'})
+		return JsonResponse({'errCode': -8, 'msg': 'Authenticate Failed, invalid password'})
 	
 def postFood(request):
 	if request.method != 'POST':
@@ -154,7 +154,7 @@ def listFood(request, username):
 		else:
 			name = ''
 		for elem in food:
-			arr.append({'foodId': elem.id, 'foodName': elem.foodName, 'Restaurant': {'username': username, 'name': user.extenduser.name, 'phone': user.extenduser.phone}, 'foodDescription': elem.foodDescription, 'foodImgUrl': elem.foodImgUrl})
+			arr.append({'foodId': elem.id, 'foodName': elem.foodName, 'restaurant': {'username': username, 'name': user.extenduser.name, 'phone': user.extenduser.phone}, 'foodDescription': elem.foodDescription, 'foodImgUrl': elem.foodImgUrl})
 		return JsonResponse({'listFood': arr})
 
 def orderFood(request):
@@ -174,11 +174,11 @@ def orderFood(request):
 		pattern = re.compile('[0-9]+');
 		match = pattern.match(order_time)
 		if match is None:
-			return Json({'errCode': -5, 'msg': 'Invalid time'})
+			return Json({'errCode': -9, 'msg': 'Invalid time'})
 		else:
 			order_time = int(match.group());
 			if (order_time < (int(time.time()) - 60)):
-				return JsonResponse({'errCode': -5, 'msg': 'Invalid time, time in the past'})
+				return JsonResponse({'errCode': -9, 'msg': 'Invalid time, time in the past'})
 	else:
 		return JsonResponse({'errCode': -5, 'msg': 'Missing argument \'time\''})
 	if ('place' in request.POST):
