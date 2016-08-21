@@ -1,6 +1,6 @@
 # Restaurant project for Webservice of AIlab
 
-**After clone this project, you must run bellow command:**
+**After cloning this project, you must run bellow command:**
 ```bash
 python manage.py makemigrations  
 python manage.py migrate
