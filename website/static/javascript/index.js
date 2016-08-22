@@ -91,7 +91,7 @@ $(document).ready(function(){
 		var html = '<div class="row">';
 		for (var i = 0; i < arr.length; i++) {
 			html += 
-				'<div class="jumbotron col-sm-6 col-xs-12 col-md-4">' +
+				'<div class="jumbotron col-sm-6 col-xs-12 col-md-4 col-lg-3">' +
 					'<img src="' + arr[i].foodImgUrl + '">'+
 					'<h2>' + arr[i].foodName + '</h2>' +
 					'<h4>Restaurant: ' + arr[i].Restaurant.name + '</h4>' +
