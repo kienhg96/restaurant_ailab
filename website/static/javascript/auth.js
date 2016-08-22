@@ -155,6 +155,10 @@ $(document).ready(function(){
 					$.get('/api/userinfo', function(result){
 						if (result.errCode === 0) {
 							renderUser(result.userinfo);
+							var addition = 
+							'<button class="btn btn-success btnOrder">Order</button>'
+							;
+							renderFood(currentFood, addition);
 						}
 						else {
 							alert('Problem when login');
@@ -173,6 +177,7 @@ $(document).ready(function(){
 	$('body').on('click', '#btnLogout', function(){
 		$.get('/api/logout', function(){
 			renderAuth();
+			renderFood(currentFood);
 		});
 		return false;
 	});
@@ -209,6 +214,10 @@ $(document).ready(function(){
 							$.get('/api/userinfo', function(userResult){
 								if (userResult.errCode === 0) {
 									renderUser(userResult.userinfo);
+									var addition = 
+									'<button class="btn btn-success btnOrder">Order</button>'
+									;
+									renderFood(currentFood, addition);
 								}
 								else {
 									alert('Error occur');
