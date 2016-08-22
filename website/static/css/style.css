@@ -21,6 +21,7 @@ img {
 .jumbotron {
 	text-align: center;
 	border: 2px solid rgb(210, 210, 210);
+	min-height: 500px;
 }
 .btn {
 	margin-left: 2px;
