@@ -1,1 +1,1 @@
-web: python mangage.py runserver
+web: gunicorn restaurant:application

@@ -94,6 +94,7 @@ $(document).ready(function(){
 				'<div class="jumbotron col-sm-6 col-xs-12">' +
 					'<img src="' + arr[i].foodImgUrl + '">'+
 					'<h2>' + arr[i].foodName + '</h2>' +
+					'<h4>Restaurant: ' + arr[i].Restaurant.name + '</h4>' +
 					'<h4>' + arr[i].foodDescription + '</h4>' +
 					add +
 				'</div>'
