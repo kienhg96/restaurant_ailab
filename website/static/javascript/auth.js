@@ -1,5 +1,7 @@
 var currentUser = null;
 var currentOrder = null;
+var currentFood = null;
+var currentOrderIndex = 0;
 $(document).ready(function(){
 	var navbarRight = $('#navbarRight');
 	var renderUser = function(user) {
@@ -32,7 +34,11 @@ $(document).ready(function(){
 		}
 		else {
 			// Customer here
-			html = "";
+			html = 
+				'<li>' +
+					'<a href="#" id="orderList">Order List</a>' +
+				'</li>'
+			;
 		}
 		navbarRight.prepend(html);
 	}
@@ -81,6 +87,7 @@ $(document).ready(function(){
 	}
 
 	var renderFood = function(arr, add = "") {
+		currentFood = arr;
 		var html = '<div class="row">';
 		for (var i = 0; i < arr.length; i++) {
 			html += 
@@ -96,27 +103,30 @@ $(document).ready(function(){
 		$('.container').html(html);
 	}
 
-	var renderOrder = function(list) {
+	var renderOrder = function(list, custom) {
 		var html = '';
 		currentOrder = list;
 		for (var i = 0; i < list.length; i++) {
 			html += 
 				'<div class="jumbotron">' +
 					'<h4>Customer: ' + list[i].customer + '</h4>' + 
+					'<h4>Restaurant: ' + list[i].restaurant + '</h4>' + 
 					'<h4>Food: ' + list[i].food.foodName + '</h4>' +
-					'<h5>Time: ' + new Date(list[i].time).toString() + '</h5>'+
+					'<h5>Time: ' + new Date(list[i].time * 1000).toString() + '</h5>'+
 					'<h5>Place: ' + list[i].place + '</h5>';
-			if (list[i].action === 'waiting'){
+			if (list[i].action === 'waiting' && custom === false){
 				html +=
 					'<button class="btn btn-success btnAccept">Accept</button>'+
-					'<button class="btn btn-danger btnDeny">Deny</button>'+
-				'</div>';
+					'<button class="btn btn-danger btnDeny">Deny</button>';
 			}
 			else {
 				html += 
-					'<h4>Status: ' + list[i].action + '</h4>' +				
-				'</div>';
+					'<h4>Status: ' + list[i].action + '</h4>';
 			}
+			if (custom && list[i].action === 'waiting') {
+				html += '<button class="btn btn-danger btnCancel">Cancel order</button>';
+			}
+			html += '</div>';
 		}
 		$('.container').html(html);
 	}
@@ -280,7 +290,7 @@ $(document).ready(function(){
 		$(this).parent().parent().find('li').removeClass('active');
 		$(this).parent().addClass('active');
 		$.get('/api/orderlist', function(result){
-			renderOrder(result.list);
+			renderOrder(result.list, currentUser.accType === 'customer');
 		});
 		return false;
 	});
@@ -327,20 +337,107 @@ $(document).ready(function(){
 	$('body').on('click', '.navbar-brand', function(){
 		$('li').removeClass('active');
 		$.get('/api/listfood', function(result){
-			//console.log(result);
-			if (currentUser.accType === 'customer') {
-				//Customer here
+			if (currentUser) {
+				if (currentUser.accType === 'restaurant') {
+					renderFood(result.listFood);
+				}
+				else {
+					console.log("Customer");
+					var addition = 
+						'<button class="btn btn-success btnOrder">Order</button>'
+					;
+					renderFood(result.listFood, addition);
+				}
 			}
 			else {
 				renderFood(result.listFood);
 			}
 		});
 		return false;
+	});
+
+	// btnOrder click
+	$('body').on('click', '.btnOrder', function(){
+		var index = $(this).parent().index();
+		console.log(currentFood[index]);
+		var date 
+		var html = 
+			'<label>Restaurant</label>' +
+			'<input class="form-control" value="' + currentFood[index].Restaurant.name + '" disabled>' +
+			'<label>Food name</label>' +
+			'<input class="form-control" value="' + currentFood[index].foodName + '" disabled>' +
+			'<label>Place</label>' +
+			'<input class="form-control" id="place" placeholder="Your place">' +
+			'<label>Time</label>' +
+			'<input type="datetime-local" class="form-control" id="time" value="' + new Date(Date.now() - (new Date().getTimezoneOffset()) * 60 * 1000).toJSON().substring(0, 16) + '" placeholder="Time">' +
+			'<button class="btn btn-success" id="orderFood">Order</button>'
+		;
+		currentOrderIndex = index;
+		$('.container').html(html);
+	});
+	// orderFood click
+	$('body').on('click', '#orderFood', function(){
+		$(this).prop('disabled', true);
+		var btn = $(this);
+		var place = $(this).parent().find('#place').val();
+		var time = $(this).parent().find('#time').val();
+		time = new Date(time).getTime();
+		var offset = new Date().getTimezoneOffset() * 60 * 1000;		
+		time = Math.floor((time + offset) / 1000);
+		console.log(time);
+		var foodId = currentFood[currentOrderIndex].foodId;
+		$.post('/api/orderfood', {
+			foodId: foodId,
+			time: time, 
+			place: place
+		}, function(result){
+			if (result.errCode === 0) {
+				alert('Order Success');
+				$()
+			}
+			else if (result.errCode === -9) {
+				alert('Please change time');
+				btn.prop('disabled', false);
+			}
+			else {
+				alert('Error occur');
+				console.log(result);
+			}
+		});
+	});
+
+	// btnCancel click
+	$('body').on('click', '.btnCancel', function(){
+		var index = $(this).parent().index();
+		console.log(currentOrder[index]);
+		var orderId = currentOrder[index].orderId;
+		var parent = $(this).parent();
+		$.post('/api/cancelorder', {
+			orderId: orderId
+		}, function(result){
+			if (result.errCode === 0) {
+				parent.remove();
+				currentOrder.splice(index, 1);
+				alert('Cancel success');
+			}
+			else {
+				alert('Error Occur');
+			}
+		});
 	})
+
 	$.get('/api/listfood', function(result){
-		//console.log(result);
-		if (currentUser.accType === 'customer') {
-			//Customer here
+		if (currentUser) {
+			if (currentUser.accType === 'restaurant') {
+				renderFood(result.listFood);
+			}
+			else {
+				console.log("Customer");
+				var addition = 
+					'<button class="btn btn-success btnOrder">Order</button>'
+				;
+				renderFood(result.listFood, addition);
+			}
 		}
 		else {
 			renderFood(result.listFood);
