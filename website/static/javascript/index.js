@@ -2,6 +2,8 @@ var currentUser = null;
 var currentOrder = null;
 var currentFood = null;
 var currentOrderIndex = 0;
+var currentRestaurantFood = null;
+
 $(document).ready(function(){
 	var navbarRight = $('#navbarRight');
 	var renderUser = function(user) {
@@ -290,7 +292,10 @@ $(document).ready(function(){
 		$(this).parent().parent().find('li').removeClass('active');
 		$(this).parent().addClass('active');
 		$.get('/api/listfood/' + currentUser.username, function(result){
-			renderFood(result.listFood);
+			//console.log(result);
+			var html = '<button class="btn btn-danger btnDeleteFood">Delete food</button>';
+			currentRestaurantFood = result.listFood;
+			renderFood(result.listFood, html);
 		});
 		return false;
 	});
@@ -436,7 +441,28 @@ $(document).ready(function(){
 		});
 	})
 
+	// On btnDeleteFood click
+	$('body').on('click' , '.btnDeleteFood', function(){
+		var parent = $(this).parent();
+		var index = parent.index();
+		console.log(currentRestaurantFood[index]);
+		$.post('/api/deletefood', {
+			foodId: currentRestaurantFood[index].foodId
+		}, function(result){
+			if (result.errCode === 0) {
+				alert('Deleted');
+				parent.remove();
+				currentRestaurantFood.splice(index, 1);
+			}
+			else {
+				console.log(result);
+				alert('Error occur, ' + result.msg);
+			}
+		});
+	});
+
 	$.get('/api/listfood', function(result){
+		console.log(result);
 		if (currentUser) {
 			if (currentUser.accType === 'restaurant') {
 				renderFood(result.listFood);

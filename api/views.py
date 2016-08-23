@@ -154,7 +154,7 @@ def listFood(request, username):
 		else:
 			name = ''
 		for elem in food:
-			arr.append({'foodId': elem.id, 'foodName': elem.foodName, 'restaurant': {'username': username, 'name': user.extenduser.name, 'phone': user.extenduser.phone}, 'foodDescription': elem.foodDescription, 'foodImgUrl': elem.foodImgUrl})
+			arr.append({'foodId': elem.id, 'foodName': elem.foodName, 'Restaurant': {'username': username, 'name': user.extenduser.name, 'phone': user.extenduser.phone}, 'foodDescription': elem.foodDescription, 'foodImgUrl': elem.foodImgUrl})
 		return JsonResponse({'listFood': arr})
 
 def orderFood(request):
